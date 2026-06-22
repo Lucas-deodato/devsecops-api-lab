@@ -1,0 +1,9 @@
+/docs/superpowers
+node_modules/
+.env
+*.sqlite
+*.sqlite-shm
+*.sqlite-wal
+coverage/
+*.log
+AGENTS.md

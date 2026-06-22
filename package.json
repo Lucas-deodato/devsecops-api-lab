@@ -1,0 +1,28 @@
+{
+  "name": "devsecops-api-lab",
+  "version": "1.0.0",
+  "description": "Secure internal IT service desk API for a hands-on DevSecOps lab",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js",
+    "lint": "eslint ."
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "express": "^5.2.1",
+    "helmet": "^8.2.0"
+  },
+  "devDependencies": {
+    "@eslint/js": "^10.0.1",
+    "eslint": "^10.5.0",
+    "globals": "^17.7.0"
+  },
+  "engines": {
+    "node": ">=24"
+  }
+}
