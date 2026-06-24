@@ -4,6 +4,7 @@ import { errorHandler } from './middlewares/error-handler.js';
 import { notFound } from './middlewares/not-found.js';
 import { authRouter } from './routes/auth.routes.js';
 import { healthRouter } from './routes/health.routes.js';
+import { ticketRouter } from './routes/ticket.routes.js';
 
 export const app = express();
 
@@ -13,6 +14,7 @@ app.use(express.json({ limit: '10kb' }));
 
 app.use('/health', healthRouter);
 app.use('/api/auth', authRouter);
+app.use('/api/tickets', ticketRouter);
 
 app.use(notFound);
 app.use(errorHandler);
