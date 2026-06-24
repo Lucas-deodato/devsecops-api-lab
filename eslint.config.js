@@ -14,7 +14,8 @@ export default [
       globals: globals.node,
     },
     rules: {
-      'no-console': ['warn', { allow: ['info', 'error'] }],
-    },
+  'no-console': ['warn', { allow: ['info', 'error'] }],
+  'no-unused-vars': ['error', { argsIgnorePattern: '^_' }],
+  },
   },
 ];
