@@ -16,6 +16,10 @@ const development = {
     extension: 'js',
     tableName: 'knex_migrations',
   },
+  seeds: {
+    directory: resolve('database/seeds'),
+    extension: 'js',
+  },
   pool: {
     min: 1,
     max: 1,

@@ -90,8 +90,8 @@ export async function findTicketsByCreator(creatorId) {
     return rows.map(mapTicket);
 }
 
-export async function findTicketById(id) {
-    const row = await db('tickets')
+export async function findTicketById(id, connection = db) {
+    const row = await connection('tickets')
         .select(ticketDetailColumns)
         .where({ id })
         .first();
@@ -109,4 +109,22 @@ export async function findTicketByIdAndCreator(id, creatorId) {
         .first();
 
     return mapTicket(row);
+}
+
+export async function updateTicketStatus({
+    ticketId,
+    status,
+    assigneeId,
+    resolvedAt,
+}, connection = db) {
+    await connection('tickets')
+        .where({ id: ticketId })
+        .update({
+            status,
+            assignee_id: assigneeId,
+            resolved_at: resolvedAt,
+            updated_at: new Date().toISOString(),
+        });
+
+    return findTicketById(ticketId, connection);
 }

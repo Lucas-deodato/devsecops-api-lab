@@ -9,7 +9,8 @@
     "lint": "eslint .",
     "db:migrate": "knex migrate:latest --env development",
     "db:rollback": "knex migrate:rollback --env development",
-    "db:status": "knex migrate:list --env development"
+    "db:status": "knex migrate:list --env development",
+    "db:seed": "knex seed:run --env development"
   },
   "keywords": [],
   "author": "",
