@@ -26,13 +26,9 @@ export async function updateTicketStatusForSupport({ ticketId, actor, nextStatus
             throw new AppError(409, 'INVALID_STATUS_TRANSITION', 'Invalid ticket status transition');
         }
 
-        const resolvedAt = nextStatus === 'RESOLVED'
-            ? new Date().toISOString()
-            : currentTicket.resolvedAt;
+        const resolvedAt = nextStatus === 'RESOLVED' ? new Date().toISOString() : currentTicket.resolvedAt;
 
-        const assigneeId = nextStatus === 'IN_PROGRESS' || !currentTicket.assigneeId
-            ? actor.id
-            : currentTicket.assigneeId;
+        const assigneeId = nextStatus === 'IN_PROGRESS' || !currentTicket.assigneeId ? actor.id : currentTicket.assigneeId;
 
         const updatedTicket = await updateTicketStatus({
             ticketId,
