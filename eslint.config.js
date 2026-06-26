@@ -3,7 +3,13 @@ import globals from 'globals';
 
 export default [
   {
-    ignores: ['node_modules/**', 'coverage/**'],
+    ignores: [
+    'node_modules/**',
+    'coverage/**',
+    '.venv/**',
+    '**/.venv/**',
+    '__pycache__/**',
+  ],
   },
   js.configs.recommended,
   {
