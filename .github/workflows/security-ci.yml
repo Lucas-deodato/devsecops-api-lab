@@ -1,0 +1,86 @@
+name: Security CI
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  security-ci:
+    name: Lint, audit and security checks
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Run JavaScript lint
+        run: npm run lint
+
+      - name: Audit Node.js dependencies
+        run: npm audit --audit-level=high
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+          cache: pip
+
+      - name: Install Python dependencies
+        run: pip install -r security-scripts/requirements.txt
+
+      - name: Create CI environment file
+        run: |
+          cat > .env <<'EOF'
+          NODE_ENV=development
+          PORT=3000
+          DATABASE_PATH=./data/helpdesk-ci.sqlite
+          JWT_SECRET=ci-secret-with-at-least-32-characters
+          JWT_EXPIRES_IN=15m
+          EOF
+
+      - name: Run database migrations
+        run: npm run db:migrate
+
+      - name: Seed database
+        run: npm run db:seed
+
+      - name: Start API
+        run: |
+          npm start > api.log 2>&1 &
+          echo $! > api.pid
+
+      - name: Wait for API health check
+        run: |
+          for attempt in {1..30}; do
+            if curl -fsS http://localhost:3000/health; then
+              echo "API is healthy"
+              exit 0
+            fi
+
+            echo "Waiting for API... attempt ${attempt}/30"
+            sleep 1
+          done
+
+          echo "API did not become healthy"
+          cat api.log
+          exit 1
+
+      - name: Run Python security checks
+        run: python security-scripts/run_security_checks.py
+
+      - name: Print API logs on failure
+        if: failure()
+        run: cat api.log || true

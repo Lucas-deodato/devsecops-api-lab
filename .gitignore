@@ -13,3 +13,4 @@ __pycache__/
 *.pyc
 .vscode/
 docs/python-security-scripts-explained.md
+.agents
