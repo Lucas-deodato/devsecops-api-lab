@@ -79,6 +79,9 @@ jobs:
           exit 1
 
       - name: Run Python security checks
+        env:
+          SECURITY_API_BASE_URL: http://localhost:3000
+          SECURITY_DATABASE_PATH: ./data/helpdesk-ci.sqlite
         run: python security-scripts/run_security_checks.py
 
       - name: Print API logs on failure
