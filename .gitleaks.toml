@@ -1,0 +1,12 @@
+title = "DevSecOps API Lab Gitleaks configuration"
+
+[extend]
+useDefault = true
+
+[[allowlists]]
+description = "Allow documented JWT_SECRET placeholder in .env.example"
+targetRules = ["generic-api-key"]
+condition = "AND"
+paths = ['''^\.env\.example$''']
+regexTarget = "line"
+regexes = ['''JWT_SECRET=replace-with-at-least-32-characters-secret''']

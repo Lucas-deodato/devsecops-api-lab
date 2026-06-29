@@ -14,3 +14,4 @@ __pycache__/
 .vscode/
 docs/python-security-scripts-explained.md
 .agents
+artifacts/
