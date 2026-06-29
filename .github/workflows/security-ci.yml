@@ -8,17 +8,17 @@ permissions:
   contents: read
 
 jobs:
-  security-ci:
-    name: Lint, audit and security checks
+  app-security-checks:
+    name: App lint, audit and Python security checks
     runs-on: ubuntu-latest
     timeout-minutes: 10
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Setup Node.js
-        uses: actions/setup-node@v4
+        uses: actions/setup-node@v6
         with:
           node-version: '24'
           cache: npm
@@ -87,3 +87,78 @@ jobs:
       - name: Print API logs on failure
         if: failure()
         run: cat api.log || true
+
+  secret-scanning:
+    name: Secret scanning with Gitleaks
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Run Gitleaks against current files
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/repo" \
+            -w /repo \
+            ghcr.io/gitleaks/gitleaks:v8.30.1 \
+            dir --verbose --redact .
+
+  sast:
+    name: SAST with Semgrep
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    container:
+      image: semgrep/semgrep:latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Run Semgrep Community Edition scan
+        run: semgrep scan --config auto .
+
+  dependency-scanning:
+    name: Dependency scanning with OSV Scanner
+    uses: google/osv-scanner-action/.github/workflows/osv-scanner-reusable.yml@v2.3.8
+    permissions:
+      actions: read
+      contents: read
+      security-events: write
+    with:
+      scan-args: |-
+        --lockfile=package-lock.json
+        --lockfile=requirements.txt:security-scripts/requirements.txt
+
+  sbom:
+    name: Generate CycloneDX Node.js SBOM
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '24'
+          cache: npm
+
+      - name: Install Node.js dependencies
+        run: npm ci
+
+      - name: Create artifacts directory
+        run: mkdir -p artifacts
+
+      - name: Generate CycloneDX SBOM for Node.js dependencies
+        run: npx @cyclonedx/cyclonedx-npm --output-format JSON --output-file artifacts/sbom-node.json
+
+      - name: Upload Node.js SBOM artifact
+        uses: actions/upload-artifact@v7
+        with:
+          name: sbom-node
+          path: artifacts/sbom-node.json
+          if-no-files-found: error
+          retention-days: 14
